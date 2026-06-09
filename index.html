@@ -202,6 +202,14 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}
 #fs{position:fixed;top:14px;right:14px;z-index:101;width:42px;height:42px;
   border-radius:12px;font-size:18px;background:rgba(20,20,20,.7);
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#hint{display:none;position:fixed;left:50%;top:14px;transform:translateX(-50%);
+  z-index:101;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+  background:rgba(20,20,20,.72);border:1px solid rgba(255,255,255,.12);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  font-size:12px;font-weight:600;color:rgba(255,255,255,.82);
+  letter-spacing:.01em;white-space:nowrap;pointer-events:none}
+#hint span{font-size:15px;animation:rot 2.4s ease-in-out infinite}
+@keyframes rot{0%,40%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
 @media(max-width:600px){.nbtn{width:46px;height:46px;font-size:23px}
   #fs{width:40px;height:40px;font-size:17px}}
 </style>
@@ -500,6 +508,7 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}
 </div></div><!-- /rotor /deck -->
 
 <button class="nbtn" id="fs" aria-label="Tela cheia">&#9974;</button>
+<div id="hint"><span>&#128241;</span>Gire o celular para ver maior</div>
 
 <nav id="nav">
   <button class="nbtn" id="prev" aria-label="Slide anterior">&#8249;</button>
@@ -520,15 +529,19 @@ html,body{height:100%;overflow:hidden;overscroll-behavior:none;background:#000}
       fs=document.getElementById('fs');
   document.getElementById('tot').textContent=total;
 
+  var hint=document.getElementById('hint');
   function fit(){
     var W=window.innerWidth, H=window.innerHeight, dH=H-NAV;
     var portrait = H >= W;
-    var s = portrait ? Math.min(dH/1280, W/720)
-                     : Math.min(W/1280, dH/720);
+    var s = Math.min(W/1280, dH/720);
     rotor.style.width  = (1280*s)+'px';
     rotor.style.height = (720*s)+'px';
-    rotor.style.transform = 'translate(-50%,-50%)' + (portrait ? ' rotate(90deg)' : '');
+    rotor.style.transform = 'translate(-50%,-50%)';
     document.documentElement.style.setProperty('--scale', s);
+    // dica "gire o celular" só em retrato e em telas pequenas
+    var smallPortrait = portrait && W<=700;
+    if(hint) hint.style.display = smallPortrait ? 'flex' : 'none';
+    if(fs)   fs.style.display   = smallPortrait ? 'none' : 'flex';
   }
   function show(n){
     i=Math.max(0, Math.min(total-1, n));
